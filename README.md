@@ -1,8 +1,8 @@
 # cskel
-
-> Extract code skeletons with high SNR for LLM analysis - preserve signatures, types, docstrings while minimizing implementation noise
+🚀 **本项目完全由 Google Gemini CLI 驱动开发** 
 
 `cskel` transforms your Python codebase into clean, structured skeletons that preserve essential information while removing implementation details. Perfect for providing LLM context, code reviews, or understanding project architecture. (And maybe tool calling)
+> Extract code skeletons with high SNR for LLM analysis - preserve signatures, types, docstrings while minimizing implementation noise
 
 ## Features
 
