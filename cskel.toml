@@ -1,0 +1,8 @@
+
+# cskel configuration file
+
+[cskel]
+# The minimum importance level for a function to have its full implementation preserved.
+# Functions with a level below this will be skeletonized.
+# Default is 1.
+min_level = 1

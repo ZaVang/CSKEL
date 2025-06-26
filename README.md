@@ -17,9 +17,25 @@
 
 ### Installation
 
-```bash
-pip install cskel
-```
+This project is intended to be run from a local clone. Follow these steps to get started:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/cskel.git
+    cd cskel
+    ```
+
+2.  **Create and activate a virtual environment (recommended):**
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+    ```
+
+3.  **Install in editable mode:**
+    ```bash
+    pip install -e .
+    ```
+    This will make the `cskel` command available in your terminal. Any changes you make to the source code will be immediately reflected.
 
 ### Basic Usage
 
@@ -45,14 +61,17 @@ extract_skeleton("./src", output_dir="./skeleton", min_level=2)
 ### Command Line
 
 ```bash
-# Extract skeleton for entire project
+# Initialize cskel in your project (creates default config files)
+cskel init
+
+# Extract a skeleton from a source directory
 cskel extract ./src --output ./skeleton --min-level 2
 
-# Preview what would be extracted
-cskel preview ./src --min-level 2
+# Preview what the skeleton would look like without writing files
+cskel preview ./src
 
-# Initialize cskel in existing project
-cskel init
+# Analyze your project for statistics on functions, classes, and levels
+cskel analyze ./src
 ```
 
 ## How It Works
@@ -240,16 +259,7 @@ def format_currency(amount: float) -> str:
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
-
-```bash
-git clone https://github.com/yourusername/cskel.git
-cd cskel
-pip install -e ".[dev]"
-pre-commit install
-```
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. The development setup is the same as the installation process described above.
 
 ### Running Tests
 

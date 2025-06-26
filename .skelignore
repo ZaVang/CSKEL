@@ -1,0 +1,17 @@
+
+# Patterns for files and directories to ignore during skeleton extraction.
+# Uses .gitignore syntax.
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+virtualenv/
+env/
+
+# Test files
+
+test_*.py
+*_test.py
