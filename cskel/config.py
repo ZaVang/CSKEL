@@ -9,6 +9,7 @@ DEFAULT_CONFIG = {
     "include_private": False,
     "smart_calls": True,
     "max_call_depth": 2,
+    "preserve_calls_as_comments": True,
 }
 
 class Config:

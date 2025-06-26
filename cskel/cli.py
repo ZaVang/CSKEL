@@ -77,7 +77,8 @@ def get_app():
 
             try:
                 source_code = source_file.read_text(encoding="utf-8")
-                skeleton_code = create_skeleton(source_code, min_level=final_min_level)
+                preserve_calls = config.get("preserve_calls_as_comments")
+                skeleton_code = create_skeleton(source_code, min_level=final_min_level, preserve_calls_as_comments=preserve_calls)
                 output_file.write_text(skeleton_code, encoding="utf-8")
                 file_count += 1
             except Exception as e:
@@ -101,6 +102,9 @@ def get_app():
 # Functions with a level below this will be skeletonized.
 # Default is 1.
 min_level = 1
+# Whether to preserve function calls as comments in the skeleton.
+# Default is true.
+preserve_calls_as_comments = true
 '''
 
         # Default .skelignore content
@@ -170,7 +174,8 @@ test_*.py
             typer.secho(f"--- {relative_path} ---", fg=typer.colors.YELLOW)
             try:
                 source_code = source_file.read_text(encoding="utf-8")
-                skeleton_code = create_skeleton(source_code, min_level=final_min_level)
+                preserve_calls = config.get("preserve_calls_as_comments")
+                skeleton_code = create_skeleton(source_code, min_level=final_min_level, preserve_calls_as_comments=preserve_calls)
                 typer.echo(skeleton_code)
             except Exception as e:
                 typer.secho(f"Error processing {source_file.name}: {e}", fg=typer.colors.RED)

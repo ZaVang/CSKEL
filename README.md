@@ -1,5 +1,5 @@
 # cskel
-🚀 **本项目完全由 Google Gemini CLI 驱动开发** 
+🚀 **This project is totally build by Google Gemini-CLI.** 
 
 `cskel` transforms your Python codebase into clean, structured skeletons that preserve essential information while removing implementation details. Perfect for providing LLM context, code reviews, or understanding project architecture. (And maybe tool calling)
 > Extract code skeletons with high SNR for LLM analysis - preserve signatures, types, docstrings while minimizing implementation noise
@@ -8,7 +8,7 @@
 
 - 🎯 **High Signal-to-Noise Ratio**: Keep what matters, remove the noise
 - 🏗️ **Structure Preservation**: Maintains function signatures, types, and docstrings
-- 🎚️ **Level-based Control**: Use decorators to control extraction granularity
+- 🎚️ **Flexible Level Control**: Define importance per function with decorators or globally per file, with function-level settings overriding file-level ones.
 - 🔍 **Smart Analysis**: Automatically detects important function calls and dependencies
 - 🚀 **LLM Optimized**: Reduces context size while preserving semantic meaning
 - ⚙️ **Configurable**: Flexible ignore patterns and extraction rules
@@ -100,6 +100,12 @@ cskel analyze ./src
 
 ### Level System
 
+`cskel` offers flexible control over skeletonization granularity:
+
+-   **Function-level**: Use `@code_level(N)` decorator on individual functions.
+-   **File-level**: Define `__code_level__ = N` at the top of a Python file to set a default level for all functions within that file.
+-   **Override**: A function's `@code_level` decorator will always override the file-level `__code_level__` setting.
+
 ```python
 @code_level(1)  # Basic skeleton only
 @code_level(2)  # Include key structure
@@ -110,7 +116,7 @@ cskel analyze ./src
 
 ### Smart Call Analysis
 
-`cskel` automatically identifies and preserves important function calls:
+`cskel` automatically identifies and preserves important function calls as comments by default. This behavior can be toggled via the `preserve_calls_as_comments` configuration.
 
 ```python
 @code_level(2)
@@ -150,6 +156,7 @@ preserve_imports = true
 include_private = false
 smart_calls = true
 max_call_depth = 2
+preserve_calls_as_comments = true # New: Whether to preserve function calls as comments (default: true)
 
 [cskel.preserve]
 constants = true

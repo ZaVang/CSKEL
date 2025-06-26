@@ -31,8 +31,9 @@ class ProjectStats:
 
 class AnalysisVisitor(cst.CSTVisitor):
     """A visitor to collect statistics about a Python file."""
-    def __init__(self) -> None:
+    def __init__(self, file_level: int = 0) -> None:
         self.stats = ProjectStats(total_files=1)
+        self.file_level = file_level
 
     def visit_ClassDef(self, node: cst.ClassDef) -> bool:
         self.stats.total_classes += 1
@@ -56,11 +57,24 @@ class AnalysisVisitor(cst.CSTVisitor):
                         arg = decorator.decorator.args[0].value
                         if isinstance(arg, cst.Integer):
                             return int(arg.value)
-        return 0
+        return self.file_level
+
+def _get_file_level(module: cst.Module) -> int:
+    """Extracts the file-level code_level, e.g., __code_level__ = 1"""
+    for node in module.body:
+        if isinstance(node, cst.SimpleStatementLine):
+            if len(node.body) == 1 and isinstance(node.body[0], cst.Assign):
+                assign = node.body[0]
+                if len(assign.targets) == 1 and isinstance(assign.targets[0].target, cst.Name):
+                    if assign.targets[0].target.value == "__code_level__":
+                        if isinstance(assign.value, cst.Integer):
+                            return int(assign.value.value)
+    return 0
 
 def analyze_file(code: str) -> ProjectStats:
     """Analyzes a single string of Python code and returns its stats."""
     module = cst.parse_module(code)
-    visitor = AnalysisVisitor()
+    file_level = _get_file_level(module)
+    visitor = AnalysisVisitor(file_level=file_level)
     module.visit(visitor)
     return visitor.stats

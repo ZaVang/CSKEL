@@ -23,9 +23,11 @@ class CallCollector(cst.CSTVisitor):
 
 class SkeletonTransformer(cst.CSTTransformer):
     """The core transformer that converts a Python module into a skeleton."""
-    def __init__(self, module: cst.Module, min_level: int = 1):
+    def __init__(self, module: cst.Module, min_level: int = 1, file_level: int = 0, preserve_calls: bool = True):
         self.module = module
         self.min_level = min_level
+        self.file_level = file_level
+        self.preserve_calls = preserve_calls
 
     def get_code_level(self, node: cst.FunctionDef) -> int:
         """Extracts the integer value from a @code_level(N) decorator."""
@@ -36,7 +38,7 @@ class SkeletonTransformer(cst.CSTTransformer):
                         arg = decorator.decorator.args[0].value
                         if isinstance(arg, cst.Integer):
                             return int(arg.value)
-        return 0
+        return self.file_level
 
     def leave_FunctionDef(self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef) -> cst.FunctionDef:
         """Processes each function, skeletonizing it if below the min_level."""
@@ -51,26 +53,26 @@ class SkeletonTransformer(cst.CSTTransformer):
         if docstring_stmt:
             new_body_statements.append(docstring_stmt)
 
-        call_collector = CallCollector()
-        original_node.body.visit(call_collector)
+        if self.preserve_calls:
+            call_collector = CallCollector()
+            original_node.body.visit(call_collector)
 
-        if call_collector.calls:
-            new_body_statements.append(cst.EmptyLine(comment=cst.Comment("# Important calls:")))
-            for call_node in call_collector.calls:
-                # Simple filter to avoid common non-function calls like exceptions
-                if isinstance(call_node.func, cst.Name) and call_node.func.value.endswith("Error"):
-                    continue
-                try:
-                    call_str = self.module.code_for_node(call_node)
-                    comment_text = f"# → {call_str}"
-                    new_body_statements.append(cst.EmptyLine(comment=cst.Comment(comment_text)))
-                except Exception:
-                    pass
+            if call_collector.calls:
+                new_body_statements.append(cst.EmptyLine(comment=cst.Comment("# Important calls:")))
+                for call_node in call_collector.calls:
+                    if isinstance(call_node.func, cst.Name) and call_node.func.value.endswith("Error"):
+                        continue
+                    try:
+                        call_str = self.module.code_for_node(call_node)
+                        comment_text = f"# → {call_str}"
+                        new_body_statements.append(cst.EmptyLine(comment=cst.Comment(comment_text)))
+                    except Exception:
+                        pass
 
         comment_collector = CommentCollector()
         original_node.body.visit(comment_collector)
         if comment_collector.comments:
-            if call_collector.calls:
+            if self.preserve_calls and call_collector.calls:
                  new_body_statements.append(cst.EmptyLine())
             for comment in comment_collector.comments:
                 new_body_statements.append(cst.EmptyLine(comment=comment))
@@ -92,9 +94,27 @@ class SkeletonTransformer(cst.CSTTransformer):
                         return first_stmt
         return None
 
-def create_skeleton(code: str, min_level: int = 1) -> str:
+def _get_file_level(module: cst.Module) -> int:
+    """Extracts the file-level code_level, e.g., __code_level__ = 1"""
+    for node in module.body:
+        if isinstance(node, cst.SimpleStatementLine):
+            if len(node.body) == 1 and isinstance(node.body[0], cst.Assign):
+                assign = node.body[0]
+                if len(assign.targets) == 1 and isinstance(assign.targets[0].target, cst.Name):
+                    if assign.targets[0].target.value == "__code_level__":
+                        if isinstance(assign.value, cst.Integer):
+                            return int(assign.value.value)
+    return 0
+
+def create_skeleton(code: str, min_level: int = 1, preserve_calls_as_comments: bool = True) -> str:
     """The main function to create a skeleton from a string of Python code."""
     module = cst.parse_module(code)
-    transformer = SkeletonTransformer(module=module, min_level=min_level)
+    file_level = _get_file_level(module)
+    transformer = SkeletonTransformer(
+        module=module,
+        min_level=min_level,
+        file_level=file_level,
+        preserve_calls=preserve_calls_as_comments
+    )
     modified_tree = module.visit(transformer)
     return modified_tree.code
