@@ -275,6 +275,28 @@ pytest
 pytest --cov=cskel tests/
 ```
 
+## MCP Service (Model Context Protocol)
+
+`cskel` is now available as an MCP service, allowing LLMs like Claude to directly extract code skeletons, analyze projects, and preview transformations through a standardized protocol.
+
+### Quick Start with MCP
+
+```bash
+# Install with MCP support
+pip install -e .
+
+# Configure in Claude Desktop (claude_desktop_config.json)
+{
+  "mcpServers": {
+    "cskel": {
+      "command": "cskel-mcp"
+    }
+  }
+}
+```
+
+See [README_MCP.md](README_MCP.md) for complete MCP documentation and usage examples.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
@@ -284,6 +306,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [LibCST](https://github.com/Instagram/LibCST) - Concrete syntax tree parser
 - [Aider](https://github.com/Aider-AI/aider) - AI pair programming
 - [Tree-sitter](https://tree-sitter.github.io/) - Language parsing library
+- [Model Context Protocol](https://modelcontextprotocol.io/) - Standard protocol for LLM integrations
 
 ---
 

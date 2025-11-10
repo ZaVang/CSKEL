@@ -30,8 +30,10 @@ dependencies = [
     "libcst",
     "typer[all]",
     "pathspec",
-    "tomli"
+    "tomli",
+    "mcp>=0.1.0"
 ]
 
 [project.scripts]
 cskel = "cskel.cli:app"
+cskel-mcp = "cskel_mcp.server:main"

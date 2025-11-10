@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "cskel": {
+      "command": "python",
+      "args": ["-m", "cskel_mcp.server"],
+      "cwd": "/path/to/CSKEL",
+      "env": {}
+    }
+  }
+}
